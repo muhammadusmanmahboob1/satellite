@@ -1,7 +1,6 @@
 package satellite;
 
 import java.io.*;
-import java.util.*;
 
 public class Satellite {
 
@@ -19,37 +18,15 @@ public class Satellite {
             oldImage = new int[noOfRows][noOfCols];
             newImage = new int[noOfRows][noOfCols];
 
-            // {read old image}
-            for (int row = 0; row < noOfRows; row++) {
-                String[] parts = reader.readLine().trim().split("\\s+");
-                for (int col = 0; col < noOfCols; col++) {
-                    oldImage[row][col] = Integer.parseInt(parts[col]);
-                }
-            }
-
-            // {read new image}
-            for (int row = 0; row < noOfRows; row++) {
-                String[] parts = reader.readLine().trim().split("\\s+");
-                for (int col = 0; col < noOfCols; col++) {
-                    newImage[row][col] = Integer.parseInt(parts[col]);
-                }
-            }
+            readImage(reader, oldImage);
+            readImage(reader, newImage);
 
             reader.close();
 
-            // {determine upper corner}
-            int x1 = 0;
-            while (x1 < noOfRows && equalRows(x1)) x1++;
-
-            int y1 = 0;
-            while (y1 < noOfCols && equalCols(y1)) y1++;
-
-            // {determine lower corner}
-            int x2 = noOfRows - 1;
-            while (x2 >= 0 && equalRows(x2)) x2--;
-
-            int y2 = noOfCols - 1;
-            while (y2 >= 0 && equalCols(y2)) y2--;
+            int x1 = findBoundary(0, noOfRows, 1, true);
+            int y1 = findBoundary(0, noOfCols, 1, false);
+            int x2 = findBoundary(noOfRows - 1, -1, -1, true);
+            int y2 = findBoundary(noOfCols - 1, -1, -1, false);
 
             // {output}
             if (x1 > x2 || y1 > y2) {
@@ -63,6 +40,31 @@ public class Satellite {
             System.err.println("Error reading input file: " + e.getMessage());
         }
     }
+
+    static void readImage(BufferedReader reader, int[][] image) throws IOException {
+        for (int row = 0; row < noOfRows; row++) {
+            String[] parts = reader.readLine().trim().split("\\s+");
+            for (int col = 0; col < noOfCols; col++) {
+                 image[row][col] = Integer.parseInt(parts[col]);
+            }
+        }
+    }
+
+    static int findBoundary(int start, int end, int step, boolean row) {
+        int i = start;
+        while (i != end) {
+            if (row && !equalRows(i)) {
+                break;
+            }
+            if (!row && !equalCols(i)) {
+                break;
+            } 
+            i += step;
+        }
+
+        return i;
+    }
+
 
     // {check if a row is equal in both images}
     public static boolean equalRows(int row) {
